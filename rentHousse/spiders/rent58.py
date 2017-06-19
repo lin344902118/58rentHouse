@@ -5,7 +5,7 @@ from rentHousse.items import RenthousseItem
 
 MIN_RENT = 1000
 MAX_RENT = 1500
-MAX_PAGE = 5
+MAX_PAGE = 2
 
 class rent58Spider(Spider):
     name = "rent58"
@@ -30,11 +30,13 @@ class rent58Spider(Spider):
         response = response.replace(body=response.body.replace('<b>', ''))
         hxs = Selector(response)
         contents = hxs.xpath('//ul[@class="list"]/li')
-
+        item = RenthousseItem()
         for i in range(len(contents)):
-            item = RenthousseItem()
-            item['title'] = contents[i].xpath('//*[@class="des"]/h2/text()')[i].extract().replace(' ', '')
-            item['condition'] = contents[i].xpath('//*[@class="des"]/p[@class="room"]/text()')[i].extract().replace(' ', '').replace('\r\n', '')
-            item['remarks'] = contents[i].xpath('//*[@class="des"]/p[@class="spec"]/span[@class="spec1"]/text()')[i].extract().replace(' ', '')
-            item['price'] = contents[i].xpath('//*[@class="money"]/span/text()')[i].extract().replace(' ', '').replace('\r\n', '')
+            item['title'] = contents[i].xpath('//*[@class="des"]/h2/text()')[i].extract().replace(' ', '').decode()
+            item['condition'] = contents[i].xpath('//*[@class="des"]/p[@class="room"]/text()')[i].extract().replace(' ', '').replace('\r\n', '').decode()
+            try:
+                item['remarks'] = contents[i].xpath('//*[@class="des"]/p[@class="spec"]/span[@class="spec1"]/text()')[i].extract().replace(' ', '').decode()
+            except:
+                item['remarks'] = ''
+            item['price'] = contents[i].xpath('//*[@class="money"]/span/text()')[i].extract().replace(' ', '').replace('\r\n', '').decode()
             yield item
